@@ -19,8 +19,11 @@ import {
   ChevronUp,
   Mic,
   MicOff,
+  BookOpen,
+  Video,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react"
-import Link from "next/link"
 import type { WeakTopic } from "@/app/api/quiz/weak-topics/route"
 import type { AgentArtifacts } from "@/lib/agent"
 
@@ -91,13 +94,36 @@ function ChatBubble({ message }: { message: ChatMessage }) {
   )
 }
 
+const DEMO_VIDEO_BASE = "https://axuxybjdr7kn.objectstorage.ap-osaka-1.oci.customer-oci.com/n/axuxybjdr7kn/b/bucket-20260105/o"
+const DEMO_VIDEOS: Record<string, string> = {
+  "Physics:Newton's Laws of Motion": `${DEMO_VIDEO_BASE}/physicNewton%27s%20Laws%20Explained_1080p.mp4`,
+}
+const DEMO_THUMBNAILS: Record<string, string> = {
+  "Physics:Newton's Laws of Motion": "https://axuxybjdr7kn.objectstorage.ap-osaka-1.oci.customer-oci.com/n/axuxybjdr7kn/b/bucket-20260105/o/PhysicsNano_Banana_2_IB_Physics_concept___Newton_s_Laws_of_Motion______Educational_explainer_with_clear_vis_1.png",
+}
+
+// Hardcoded recommended topics for the demo
+const DEMO_RECOMMENDED: WeakTopic[] = [
+  { subject: "Physics", topic: "Newton's Laws of Motion", mastery: 45 },
+]
+
 export default function DiscoverPage() {
   const [selectedSubject, setSelectedSubject] = useState("")
   const [topicInput, setTopicInput] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [job, setJob] = useState<GenerationJob | null>(null)
+  const [readyVideo, setReadyVideo] = useState<{ url: string; subject: string; topic: string; thumbnail?: string } | null>(null)
   const [weakTopics, setWeakTopics] = useState<WeakTopic[]>([])
+  const [isQuizLoading, setIsQuizLoading] = useState(false)
+  const [quiz, setQuiz] = useState<{
+    subject: string
+    topic: string
+    questions: { question: string; options: string[]; correctIndex: number; explanation: string }[]
+    selectedAnswers: Record<number, number>
+    revealed: boolean
+  } | null>(null)
+  const demoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const { profile } = useUser()
   const { t } = useLanguage()
 
@@ -203,17 +229,17 @@ export default function DiscoverPage() {
     }
   }, [profile?.curriculum])
 
-  // Fetch weak topics
+  // Always show the hardcoded demo recommended topics
   useEffect(() => {
-    const userId = profile?.id
-    const params = userId ? `?userId=${userId}` : ""
-    fetch(`/api/quiz/weak-topics${params}`)
-      .then((r) => r.json())
-      .then((data: { topics?: WeakTopic[] }) => {
-        if (data.topics?.length) setWeakTopics(data.topics)
-      })
-      .catch(() => {})
-  }, [profile?.id])
+    setWeakTopics(DEMO_RECOMMENDED)
+  }, [])
+
+  // Clean up demo timer on unmount
+  useEffect(() => {
+    return () => {
+      if (demoTimerRef.current) clearTimeout(demoTimerRef.current)
+    }
+  }, [])
 
   const handleSendChat = useCallback(async () => {
     const text = chatInput.trim()
@@ -276,19 +302,20 @@ export default function DiscoverPage() {
       setJob(null)
 
       try {
-        const res = await fetch("/api/video/generate", {
+        const res = await fetch("/api/agent", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            subject,
-            topic: topic.trim(),
-            interests: profile?.interests ?? "",
+            message: `Generate an educational video about "${topic.trim()}" in ${subject}`,
+            sessionId,
+            curriculum: profile?.curriculum ?? "IB",
+            subjects: [subject],
+            level: profile?.level ?? "",
           }),
         })
-        const data = (await res.json()) as {
-          videoId: string | null
-          taskId: string
-          status: string
+        const data = await res.json() as {
+          reply: string
+          artifacts?: AgentArtifacts
           error?: string
         }
 
@@ -297,15 +324,84 @@ export default function DiscoverPage() {
           return
         }
 
-        setJob({ subject, topic: topic.trim(), taskId: data.taskId, videoId: data.videoId })
+        if (data.artifacts?.videoTaskId) {
+          setJob({
+            subject,
+            topic: topic.trim(),
+            taskId: data.artifacts.videoTaskId,
+            videoId: data.artifacts.videoId ?? null,
+          })
+        } else {
+          setError("Video generation failed. Please try again.")
+        }
       } catch {
         setError("Network error — please try again")
       } finally {
         setIsGenerating(false)
       }
     },
-    [profile?.interests]
+    [sessionId, profile]
   )
+
+  const handleGenerateQuiz = useCallback(async (subject: string, topic: string) => {
+    if (!subject || !topic.trim()) return
+    setIsQuizLoading(true)
+    setQuiz(null)
+    setError(null)
+
+    try {
+      const res = await fetch("/api/agent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: `Generate a quiz about "${topic.trim()}" in ${subject}`,
+          sessionId,
+          curriculum: profile?.curriculum ?? "IB",
+          subjects: [subject],
+          level: profile?.level ?? "",
+        }),
+      })
+      const data = await res.json() as {
+        reply: string
+        artifacts?: AgentArtifacts
+        error?: string
+      }
+
+      if (!res.ok || data.error) {
+        setError(data.error ?? "Failed to generate quiz")
+        return
+      }
+
+      const raw = data.artifacts?.quiz as { questions: { question: string; options: string[]; correctIndex: number; explanation: string }[] } | undefined
+      if (raw?.questions?.length) {
+        setQuiz({ subject, topic: topic.trim(), questions: raw.questions, selectedAnswers: {}, revealed: false })
+      } else {
+        setError("Quiz generation failed. Please try again.")
+      }
+    } catch {
+      setError("Network error — please try again")
+    } finally {
+      setIsQuizLoading(false)
+    }
+  }, [sessionId, profile])
+
+  const handleGenerateDemo = useCallback((subject: string, topic: string) => {
+    if (demoTimerRef.current) clearTimeout(demoTimerRef.current)
+    setReadyVideo(null)
+    setError(null)
+    setJob({ subject, topic, taskId: "demo-skip-poll", videoId: null })
+
+    const videoUrl = DEMO_VIDEOS[`${subject}:${topic}`]
+    const thumbnailUrl = DEMO_THUMBNAILS[`${subject}:${topic}`]
+    demoTimerRef.current = setTimeout(() => {
+      setJob(null)
+      if (videoUrl) {
+        setReadyVideo({ url: videoUrl, subject, topic, thumbnail: thumbnailUrl })
+      } else {
+        setError("Demo video not available for this topic.")
+      }
+    }, 7000)
+  }, [])
 
   const cfg = selectedSubject ? getSubjectConfig(selectedSubject) : null
 
@@ -459,8 +555,8 @@ export default function DiscoverPage() {
                       </div>
                     </div>
                     <button
-                      onClick={() => handleGenerate(wt.subject, wt.topic)}
-                      disabled={isGenerating}
+                      onClick={() => handleGenerateDemo(wt.subject, wt.topic)}
+                      disabled={!!job}
                       className="flex shrink-0 items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-black text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 disabled:opacity-40"
                     >
                       <Zap className="h-3 w-3" />
@@ -469,6 +565,39 @@ export default function DiscoverPage() {
                   </div>
                 )
               })}
+            </div>
+          </div>
+        )}
+
+        {/* Video player — shown after generation completes */}
+        {readyVideo && (
+          <div className="mb-6 overflow-hidden rounded-2xl border border-border bg-black">
+            <video
+              src={readyVideo.url}
+              controls
+              autoPlay
+              className="h-auto max-h-[480px] w-full"
+            />
+            {readyVideo.thumbnail && (
+              <img
+                src={readyVideo.thumbnail}
+                alt={readyVideo.topic}
+                className="w-full object-cover"
+              />
+            )}
+            <div className="flex items-center justify-between px-4 py-3">
+              <div className="flex flex-col gap-0.5">
+                <span className="text-sm font-black text-foreground">{readyVideo.topic}</span>
+                <span className={`text-[10px] font-bold ${getSubjectConfig(readyVideo.subject).color}`}>
+                  {readyVideo.subject}
+                </span>
+              </div>
+              <button
+                onClick={() => setReadyVideo(null)}
+                className="text-xs font-semibold text-muted-foreground hover:text-foreground"
+              >
+                Dismiss
+              </button>
             </div>
           </div>
         )}
@@ -484,7 +613,10 @@ export default function DiscoverPage() {
               topic={job.topic}
               taskId={job.taskId}
               videoId={job.videoId}
-              onReady={() => setJob(null)}
+              onReady={(url) => {
+                setReadyVideo({ url, subject: job.subject, topic: job.topic })
+                setJob(null)
+              }}
               onFailed={() => {
                 setError("Video generation failed. Please try again.")
                 setJob(null)
@@ -529,32 +661,38 @@ export default function DiscoverPage() {
             <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
               {t("discover.step2")}
             </label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={topicInput}
+                onChange={(e) => setTopicInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleGenerateQuiz(selectedSubject, topicInput)
+                }}
+                placeholder={`e.g. ${SUGGESTED_TOPICS[selectedSubject]?.[0] ?? "Enter topic..."}`}
+                className="h-12 w-full rounded-xl border border-border bg-secondary pl-10 pr-4 text-sm font-semibold text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
             <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <input
-                  value={topicInput}
-                  onChange={(e) => setTopicInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleGenerate(selectedSubject, topicInput)
-                  }}
-                  placeholder={`e.g. ${SUGGESTED_TOPICS[selectedSubject]?.[0] ?? "Enter topic..."}`}
-                  className="h-12 w-full rounded-xl border border-border bg-secondary pl-10 pr-4 text-sm font-semibold text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
               <button
-                onClick={() => handleGenerate(selectedSubject, topicInput)}
-                disabled={!topicInput.trim() || isGenerating}
-                className={`flex h-12 items-center gap-2 rounded-xl px-4 text-sm font-black text-white shadow-lg transition-all hover:-translate-y-0.5 disabled:opacity-40 ${
-                  cfg ? "shadow-primary/30" : ""
-                } bg-primary`}
+                onClick={() => handleGenerateQuiz(selectedSubject, topicInput)}
+                disabled={!topicInput.trim() || isQuizLoading}
+                className="flex flex-1 h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-black text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5 disabled:opacity-40"
               >
-                {isGenerating ? (
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                {isQuizLoading ? (
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
                 ) : (
-                  <Zap className="h-4 w-4" />
+                  <BookOpen className="h-4 w-4" />
                 )}
-                {t("discover.generate")}
+                Generate Quiz
+              </button>
+              <button
+                disabled
+                title="Video generation coming soon"
+                className="flex flex-1 h-11 items-center justify-center gap-2 rounded-xl border border-border bg-secondary px-4 text-sm font-black text-muted-foreground opacity-40 cursor-not-allowed"
+              >
+                <Video className="h-4 w-4" />
+                Generate Video
               </button>
             </div>
 
@@ -579,6 +717,82 @@ export default function DiscoverPage() {
                 ))}
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Quiz result */}
+        {quiz && (
+          <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-border bg-card p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-0.5">
+                <span className="text-sm font-black text-foreground">{quiz.topic}</span>
+                <span className={`text-[10px] font-bold ${getSubjectConfig(quiz.subject).color}`}>{quiz.subject} Quiz</span>
+              </div>
+              <button onClick={() => setQuiz(null)} className="text-xs font-semibold text-muted-foreground hover:text-foreground">
+                Dismiss
+              </button>
+            </div>
+
+            {quiz.questions.map((q, qi) => {
+              const selected = quiz.selectedAnswers[qi]
+              const isAnswered = selected !== undefined
+              const isCorrect = selected === q.correctIndex
+              return (
+                <div key={qi} className="flex flex-col gap-2 rounded-xl border border-border bg-secondary/40 p-3">
+                  <p className="text-sm font-bold text-foreground">{qi + 1}. {q.question}</p>
+                  <div className="flex flex-col gap-1.5">
+                    {q.options.map((opt, oi) => {
+                      const isSelected = selected === oi
+                      const showCorrect = quiz.revealed && oi === q.correctIndex
+                      const showWrong = quiz.revealed && isSelected && !isCorrect
+                      return (
+                        <button
+                          key={oi}
+                          disabled={isAnswered}
+                          onClick={() => setQuiz((prev) => prev ? ({
+                            ...prev,
+                            selectedAnswers: { ...prev.selectedAnswers, [qi]: oi },
+                          }) : null)}
+                          className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-xs font-semibold transition-all ${
+                            showCorrect
+                              ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-600"
+                              : showWrong
+                                ? "border-rose-500/50 bg-rose-500/10 text-rose-500"
+                                : isSelected
+                                  ? "border-primary/50 bg-primary/10 text-primary"
+                                  : "border-border bg-card text-foreground hover:bg-secondary"
+                          } disabled:cursor-default`}
+                        >
+                          {showCorrect ? <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-500" /> :
+                           showWrong ? <XCircle className="h-3.5 w-3.5 shrink-0 text-rose-500" /> :
+                           <span className="h-3.5 w-3.5 shrink-0 rounded-full border border-current text-[9px] font-black flex items-center justify-center">{String.fromCharCode(65 + oi)}</span>}
+                          {opt}
+                        </button>
+                      )
+                    })}
+                  </div>
+                  {quiz.revealed && isAnswered && !isCorrect && (
+                    <p className="text-[11px] font-semibold text-muted-foreground">{q.explanation}</p>
+                  )}
+                </div>
+              )
+            })}
+
+            {!quiz.revealed && Object.keys(quiz.selectedAnswers).length === quiz.questions.length && (
+              <button
+                onClick={() => setQuiz((prev) => prev ? ({ ...prev, revealed: true }) : null)}
+                className="flex h-10 items-center justify-center rounded-xl bg-primary text-sm font-black text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5"
+              >
+                Reveal Answers
+              </button>
+            )}
+            {quiz.revealed && (
+              <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-4 py-2.5 text-center">
+                <span className="text-sm font-black text-emerald-600">
+                  {Object.entries(quiz.selectedAnswers).filter(([qi, ans]) => ans === quiz.questions[Number(qi)]?.correctIndex).length} / {quiz.questions.length} correct
+                </span>
+              </div>
+            )}
           </div>
         )}
 
@@ -624,17 +838,6 @@ export default function DiscoverPage() {
           })}
         </div>
 
-        {/* Go to feed CTA */}
-        <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/10 p-4 text-center">
-          <p className="mb-3 text-sm font-bold text-foreground">{t("discover.feed.cta")}</p>
-          <Link
-            href="/feed"
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-black text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5"
-          >
-            {t("discover.feed.btn")}
-            <Zap className="h-4 w-4" />
-          </Link>
-        </div>
       </div>
     </AppShell>
   )

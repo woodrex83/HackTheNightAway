@@ -41,7 +41,7 @@ export function GeneratingCard({
   }, [])
 
   useEffect(() => {
-    if (taskId.startsWith("mock-task-")) return
+    if (taskId.startsWith("mock-task-") || taskId.startsWith("demo-")) return
 
     const poll = async () => {
       try {

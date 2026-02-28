@@ -3,7 +3,6 @@ export type Lang = "en" | "zh-HK"
 export const translations = {
   en: {
     // Nav
-    "nav.feed": "Feed",
     "nav.discover": "Discover",
     "nav.progress": "Progress",
     "nav.dashboard": "Dashboard",
@@ -58,12 +57,9 @@ export const translations = {
     "discover.suggested": "Suggested topics",
     "discover.generate": "Generate",
     "discover.browse": "Browse Topics",
-    "discover.feed.cta": "Ready to watch? Your personalised feed awaits.",
-    "discover.feed.btn": "Go to Feed",
   },
   "zh-HK": {
     // Nav
-    "nav.feed": "動態",
     "nav.discover": "探索",
     "nav.progress": "進度",
     "nav.dashboard": "主頁",
@@ -118,8 +114,6 @@ export const translations = {
     "discover.suggested": "建議主題",
     "discover.generate": "生成",
     "discover.browse": "瀏覽主題",
-    "discover.feed.cta": "準備好睇片？你嘅個人化動態等緊你。",
-    "discover.feed.btn": "去動態",
   },
 } as const
 

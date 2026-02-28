@@ -12,7 +12,7 @@ export default function RootPage() {
   useEffect(() => {
     if (isAuthed()) {
       const onboarded = localStorage.getItem("ib_onboarded")
-      router.replace(onboarded ? "/feed" : "/onboarding")
+      router.replace(onboarded ? "/discover" : "/onboarding")
     } else {
       setShowLanding(true)
     }

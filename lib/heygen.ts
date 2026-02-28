@@ -77,7 +77,6 @@ export async function generateVideo(
         width: 720,
         height: 1280,
       },
-      aspect_ratio: "9:16",
     }),
   })
 

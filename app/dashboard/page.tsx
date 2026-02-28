@@ -30,6 +30,7 @@ import {
   AlertTriangle,
   LayoutDashboard,
   TrendingUp,
+  LogOut,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -64,7 +65,7 @@ function StatCard({
 
 export default function DashboardPage() {
   const { profile } = useUser()
-  const { session } = useAuth()
+  const { session, signOut } = useAuth()
 
   const subjects = profile?.ibSubjects ?? []
   const stats = getMockStats()
@@ -90,9 +91,18 @@ export default function DashboardPage() {
               </p>
             </div>
           </div>
-          <div className="hidden sm:flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2">
-            <Flame className="h-4 w-4 text-orange-400" />
-            <span className="text-sm font-black text-amber-400">{streak} day streak</span>
+          <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2">
+              <Flame className="h-4 w-4 text-orange-400" />
+              <span className="text-sm font-black text-amber-400">{streak} day streak</span>
+            </div>
+            <button
+              onClick={signOut}
+              className="flex items-center gap-1.5 rounded-xl border border-border bg-secondary px-3 py-2 text-sm font-bold text-muted-foreground transition-all hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-400"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="hidden sm:inline">Logout</span>
+            </button>
           </div>
         </div>
 

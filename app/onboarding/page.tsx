@@ -147,7 +147,7 @@ export default function OnboardingPage() {
       onboarded: true,
     })
     localStorage.setItem("ib_onboarded", "true")
-    router.push("/feed")
+    router.push("/discover")
   }, [curriculum, level, selectedSubjects, interests, updateProfile, router])
 
   const totalSteps = 3
@@ -196,14 +196,27 @@ export default function OnboardingPage() {
               </div>
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {CURRICULUM_OPTIONS.map((option) => (
-                  <CurriculumCard
-                    key={option.id}
-                    option={option}
-                    selected={curriculum === option.id}
-                    onSelect={() => handleCurriculumSelect(option.id)}
-                  />
-                ))}
+                {CURRICULUM_OPTIONS.map((option) => {
+                  const isDSE = option.id === "DSE"
+                  return (
+                    <div key={option.id} className={isDSE ? "relative" : ""}>
+                      <div className={isDSE ? "pointer-events-none opacity-40 select-none" : ""}>
+                        <CurriculumCard
+                          option={option}
+                          selected={curriculum === option.id}
+                          onSelect={() => handleCurriculumSelect(option.id)}
+                        />
+                      </div>
+                      {isDSE && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="rounded-full bg-secondary border border-border px-3 py-1 text-xs font-black text-muted-foreground">
+                            Coming Soon
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
 
               <div className="flex justify-end">

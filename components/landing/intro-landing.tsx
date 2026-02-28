@@ -71,7 +71,7 @@ export function IntroLanding() {
       }
 
       const onboarded = localStorage.getItem("ib_onboarded")
-      router.push(onboarded ? "/feed" : "/onboarding")
+      router.push(onboarded ? "/discover" : "/onboarding")
     },
     [username, password, mode, signIn, router]
   )

@@ -2,14 +2,13 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Play, Search, TrendingUp, LayoutDashboard, Zap } from "lucide-react"
+import { Search, TrendingUp, LayoutDashboard, Zap } from "lucide-react"
 import { useUser } from "@/components/user-provider"
 import { useAuth } from "@/components/auth-provider"
 import { useLanguage } from "@/components/language-provider"
 import type { TranslationKey } from "@/lib/i18n"
 
 const NAV_ITEMS: { href: string; labelKey: TranslationKey; icon: React.FC<{ className?: string }> }[] = [
-  { href: "/feed", labelKey: "nav.feed", icon: Play },
   { href: "/discover", labelKey: "nav.discover", icon: Search },
   { href: "/progress", labelKey: "nav.progress", icon: TrendingUp },
   { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
