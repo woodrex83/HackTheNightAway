@@ -141,7 +141,16 @@ export default function DiscoverPage() {
     }
 
     audioChunksRef.current = []
-    const recorder = new MediaRecorder(stream)
+
+    // Prefer ogg (supported by cantonese.ai natively); fall back to webm
+    const preferredMime = MediaRecorder.isTypeSupported("audio/ogg;codecs=opus")
+      ? "audio/ogg;codecs=opus"
+      : MediaRecorder.isTypeSupported("audio/ogg")
+        ? "audio/ogg"
+        : ""
+    const recorder = preferredMime
+      ? new MediaRecorder(stream, { mimeType: preferredMime })
+      : new MediaRecorder(stream)
     mediaRecorderRef.current = recorder
 
     recorder.ondataavailable = (e) => {
@@ -150,13 +159,14 @@ export default function DiscoverPage() {
 
     recorder.onstop = async () => {
       stream.getTracks().forEach((t) => t.stop())
-      const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType || "audio/webm" })
+      const mimeType = recorder.mimeType || "audio/ogg"
+      const blob = new Blob(audioChunksRef.current, { type: mimeType })
 
       setIsTranscribing(true)
       try {
         const form = new FormData()
         form.append("audio", blob)
-        form.append("language", curriculum === "DSE" ? "zh" : "en")
+        form.append("mimeType", mimeType)
 
         const res = await fetch("/api/stt", { method: "POST", body: form })
         const data = await res.json() as { text?: string; error?: string }
