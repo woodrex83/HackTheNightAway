@@ -3,83 +3,71 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Learning Solo — always dark */
 :root {
-  --background: oklch(0.97 0.01 85);
-  --foreground: oklch(0.22 0.03 280);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.03 280);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.03 280);
-  --primary: oklch(0.65 0.2 25);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.94 0.025 85);
-  --secondary-foreground: oklch(0.3 0.03 280);
-  --muted: oklch(0.93 0.015 85);
-  --muted-foreground: oklch(0.5 0.02 280);
-  --accent: oklch(0.72 0.16 175);
-  --accent-foreground: oklch(0.99 0 0);
-  --destructive: oklch(0.6 0.22 20);
-  --destructive-foreground: oklch(0.6 0.22 20);
-  --border: oklch(0.91 0.015 85);
-  --input: oklch(0.91 0.015 85);
-  --ring: oklch(0.65 0.2 25);
-  --chart-1: oklch(0.65 0.2 25);
-  --chart-2: oklch(0.72 0.16 175);
-  --chart-3: oklch(0.78 0.15 85);
-  --chart-4: oklch(0.6 0.18 265);
-  --chart-5: oklch(0.7 0.18 330);
-  --radius: 1rem;
-  --warning: oklch(0.82 0.16 85);
-  --warning-foreground: oklch(0.35 0.1 85);
-  --success: oklch(0.72 0.16 175);
-  --success-foreground: oklch(0.18 0.05 175);
-  --sidebar: oklch(0.99 0 0);
-  --sidebar-foreground: oklch(0.22 0.03 280);
-  --sidebar-primary: oklch(0.65 0.2 25);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.94 0.025 85);
-  --sidebar-accent-foreground: oklch(0.3 0.03 280);
-  --sidebar-border: oklch(0.91 0.015 85);
-  --sidebar-ring: oklch(0.65 0.2 25);
-}
+  --background: oklch(0.1 0.015 270);
+  --foreground: oklch(0.96 0.008 90);
+  --card: oklch(0.14 0.015 270);
+  --card-foreground: oklch(0.96 0.008 90);
+  --popover: oklch(0.14 0.015 270);
+  --popover-foreground: oklch(0.96 0.008 90);
 
-.dark {
-  --background: oklch(0.16 0.02 280);
-  --foreground: oklch(0.95 0.01 85);
-  --card: oklch(0.2 0.02 280);
-  --card-foreground: oklch(0.95 0.01 85);
-  --popover: oklch(0.2 0.02 280);
-  --popover-foreground: oklch(0.95 0.01 85);
-  --primary: oklch(0.7 0.2 25);
+  /* Primary: electric violet */
+  --primary: oklch(0.65 0.28 290);
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.25 0.02 280);
-  --secondary-foreground: oklch(0.95 0.01 85);
-  --muted: oklch(0.25 0.02 280);
-  --muted-foreground: oklch(0.65 0.015 85);
-  --accent: oklch(0.72 0.16 175);
-  --accent-foreground: oklch(0.99 0 0);
-  --destructive: oklch(0.55 0.2 20);
-  --destructive-foreground: oklch(0.95 0.03 20);
-  --border: oklch(0.3 0.02 280);
-  --input: oklch(0.3 0.02 280);
-  --ring: oklch(0.7 0.2 25);
-  --chart-1: oklch(0.7 0.2 25);
-  --chart-2: oklch(0.72 0.16 175);
-  --chart-3: oklch(0.78 0.15 85);
-  --chart-4: oklch(0.6 0.18 265);
-  --chart-5: oklch(0.7 0.18 330);
-  --warning: oklch(0.82 0.16 85);
-  --warning-foreground: oklch(0.95 0.03 85);
-  --success: oklch(0.72 0.16 175);
-  --success-foreground: oklch(0.99 0 0);
-  --sidebar: oklch(0.2 0.02 280);
-  --sidebar-foreground: oklch(0.95 0.01 85);
-  --sidebar-primary: oklch(0.7 0.2 25);
+
+  /* Secondary: dark surface */
+  --secondary: oklch(0.18 0.015 270);
+  --secondary-foreground: oklch(0.85 0.01 90);
+
+  --muted: oklch(0.18 0.015 270);
+  --muted-foreground: oklch(0.55 0.012 270);
+
+  /* Accent: electric cyan */
+  --accent: oklch(0.75 0.22 195);
+  --accent-foreground: oklch(0.08 0.02 270);
+
+  --destructive: oklch(0.6 0.24 25);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --border: oklch(0.22 0.015 270);
+  --input: oklch(0.22 0.015 270);
+  --ring: oklch(0.65 0.28 290);
+
+  /* Charts — IB subject colors */
+  --chart-1: oklch(0.65 0.28 290);   /* violet — Mathematics */
+  --chart-2: oklch(0.75 0.22 195);   /* cyan — Physics */
+  --chart-3: oklch(0.72 0.22 145);   /* emerald — Biology */
+  --chart-4: oklch(0.8 0.2 60);      /* amber — Chemistry */
+  --chart-5: oklch(0.68 0.24 25);    /* red — History */
+
+  --radius: 0.75rem;
+
+  --warning: oklch(0.82 0.18 80);
+  --warning-foreground: oklch(0.15 0.05 80);
+  --success: oklch(0.72 0.22 145);
+  --success-foreground: oklch(0.08 0.02 145);
+
+  /* XP / streak custom tokens */
+  --xp-gold: oklch(0.82 0.2 80);
+  --streak-fire: oklch(0.72 0.24 35);
+  --subject-maths: oklch(0.65 0.28 290);
+  --subject-physics: oklch(0.75 0.22 195);
+  --subject-chemistry: oklch(0.8 0.2 60);
+  --subject-biology: oklch(0.72 0.22 145);
+  --subject-history: oklch(0.68 0.24 25);
+  --subject-economics: oklch(0.72 0.22 245);
+  --subject-english: oklch(0.75 0.18 330);
+  --subject-cs: oklch(0.7 0.22 175);
+
+  --sidebar: oklch(0.12 0.015 270);
+  --sidebar-foreground: oklch(0.96 0.008 90);
+  --sidebar-primary: oklch(0.65 0.28 290);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.25 0.02 280);
-  --sidebar-accent-foreground: oklch(0.95 0.01 85);
-  --sidebar-border: oklch(0.3 0.02 280);
-  --sidebar-ring: oklch(0.7 0.2 25);
+  --sidebar-accent: oklch(0.18 0.015 270);
+  --sidebar-accent-foreground: oklch(0.85 0.01 90);
+  --sidebar-border: oklch(0.22 0.015 270);
+  --sidebar-ring: oklch(0.65 0.28 290);
 }
 
 @theme inline {
@@ -125,6 +113,8 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-xp-gold: var(--xp-gold);
+  --color-streak-fire: var(--streak-fire);
 }
 
 @layer base {
@@ -140,4 +130,58 @@
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
+
+  /* Feed snap scroll */
+  .feed-scroll {
+    scroll-snap-type: y mandatory;
+    overflow-y: scroll;
+    height: 100%;
+  }
+  .feed-snap-item {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    height: 100dvh;
+  }
+
+  /* XP number pop animation */
+  @keyframes xp-pop {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-60px) scale(1.2); opacity: 0; }
+  }
+  .xp-pop {
+    animation: xp-pop 1.2s ease-out forwards;
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Floating particle animations for landing */
+  @keyframes float-0 {
+    0%, 100% { transform: translateY(0px) translateX(0px); }
+    50% { transform: translateY(-20px) translateX(10px); }
+  }
+  @keyframes float-1 {
+    0%, 100% { transform: translateY(0px) translateX(0px); }
+    50% { transform: translateY(15px) translateX(-12px); }
+  }
+  @keyframes float-2 {
+    0%, 100% { transform: translateY(0px) translateX(0px); }
+    33% { transform: translateY(-12px) translateX(8px); }
+    66% { transform: translateY(8px) translateX(-8px); }
+  }
+
+  /* Subject color pills */
+  .subject-maths { --subject-color: var(--subject-maths); }
+  .subject-physics { --subject-color: var(--subject-physics); }
+  .subject-chemistry { --subject-color: var(--subject-chemistry); }
+  .subject-biology { --subject-color: var(--subject-biology); }
+  .subject-history { --subject-color: var(--subject-history); }
+  .subject-economics { --subject-color: var(--subject-economics); }
+  .subject-english { --subject-color: var(--subject-english); }
+  .subject-cs { --subject-color: var(--subject-cs); }
 }
