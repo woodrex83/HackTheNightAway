@@ -58,30 +58,15 @@ create table if not exists user_video_history (
   unique(user_id, video_id)
 );
 
--- Seed IB topics
+-- Seed demo topics (3 subjects: Physics, Mathematics, Biology)
 insert into topics (subject, title, curriculum_tag, difficulty) values
-  ('Mathematics', 'Differentiation Fundamentals', 'Calculus', 1),
-  ('Mathematics', 'Integration Techniques', 'Calculus', 2),
-  ('Mathematics', 'Probability Distributions', 'Statistics', 2),
   ('Physics', 'Newton''s Laws of Motion', 'Mechanics', 1),
   ('Physics', 'Electromagnetic Induction', 'Electromagnetism', 2),
   ('Physics', 'Quantum and Nuclear Physics', 'Modern Physics', 3),
-  ('Chemistry', 'Atomic Structure and Periodicity', 'Structure', 1),
-  ('Chemistry', 'Organic Chemistry Reactions', 'Organic', 2),
-  ('Chemistry', 'Thermodynamics and Entropy', 'Energy', 3),
+  ('Mathematics', 'Differentiation Fundamentals', 'Calculus', 1),
+  ('Mathematics', 'Integration Techniques', 'Calculus', 2),
+  ('Mathematics', 'Probability Distributions', 'Statistics', 2),
   ('Biology', 'Cell Structure and Function', 'Cells', 1),
   ('Biology', 'DNA Replication and Transcription', 'Genetics', 2),
-  ('Biology', 'Evolution by Natural Selection', 'Ecology', 2),
-  ('History', 'Causes of World War I', '20th Century', 1),
-  ('History', 'Rise of Totalitarianism', '20th Century', 2),
-  ('History', 'Cold War Origins', '20th Century', 2),
-  ('Economics', 'Supply and Demand Equilibrium', 'Microeconomics', 1),
-  ('Economics', 'GDP and Economic Growth', 'Macroeconomics', 2),
-  ('Economics', 'Market Failures and Externalities', 'Microeconomics', 2),
-  ('English Lit', 'Narrative Voice and Perspective', 'Literary Analysis', 1),
-  ('English Lit', 'Symbolism and Imagery', 'Literary Analysis', 2),
-  ('English Lit', 'Comparative Essay Techniques', 'Essay Skills', 3),
-  ('Computer Science', 'Sorting Algorithms', 'Algorithms', 1),
-  ('Computer Science', 'Object-Oriented Programming', 'Programming', 2),
-  ('Computer Science', 'Network Architecture and Protocols', 'Networks', 2)
+  ('Biology', 'Enzyme Kinetics', 'Biochemistry', 2)
 on conflict do nothing;

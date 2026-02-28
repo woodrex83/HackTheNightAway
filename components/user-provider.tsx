@@ -12,6 +12,8 @@ import {
 export interface UserProfile {
   id: string
   username: string
+  curriculum: "IB" | "DSE"
+  level: string
   ibSubjects: string[]
   interests: string
   xp: number
@@ -46,6 +48,8 @@ function defaultProfile(username: string): UserProfile {
   return {
     id: crypto.randomUUID(),
     username,
+    curriculum: "IB",
+    level: "",
     ibSubjects: [],
     interests: "",
     xp: 0,

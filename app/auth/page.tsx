@@ -185,7 +185,7 @@ export default function AuthPage() {
 
           <div className="mt-5 rounded-xl bg-secondary/60 p-3">
             <p className="text-center text-xs font-semibold text-muted-foreground">
-              Demo account: <span className="font-black text-foreground">test / test</span>
+              Demo account: <span className="font-black text-foreground">test</span>
             </p>
           </div>
         </div>
